@@ -13,8 +13,8 @@ dependencies = [
 ]
 
 setup(
-    name="traintrack-stttrkx",
-    description="Command line utility to configure and run the machine learning pipelines of the stttrkx project.",
+    name="panda-train-track",
+    description="Command line utility to configure and run pyTorch Lighting modules.",
     version="0.1.0",
     install_requires=dependencies,
     packages=find_packages(),
