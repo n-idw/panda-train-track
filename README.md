@@ -1,18 +1,25 @@
 <div align="center">
     
-# traintrack
+# PANDA-Train-Track
 
 </div>
 
-**traintrack** as part of the **stttrkx project** is a heavily modified version of the [train-track repository](https://github.com/murnanedaniel/train-track). It implements a way to execute different stages of the machine learning pipeline via the command line using YAML files for configuration.
+**PANDA-Train-Track** as part of the PANDA machine learning for tracking project is a heavily modified version of the [train-track repository](https://github.com/murnanedaniel/train-track). It implements a way to execute different stages of the machine learning pipeline via the command line using YAML files for configuration.
 
 ## Install
 
-Installation should be done via one of the conda environment files in the [`stttrkx/envs`](../envs) directory. If you want to install an editable stand-alone version use:
+Installation should be done via one of the conda environment files in the [`stttrkx/envs`](../envs) directory. If you want to install an editable stand-alone version execute
 
 ```bash
-pip install -e traintrack
+git clone https://github.com/n-idw/panda-train-track.git
 ```
+to download the repository and then
+
+```bash
+pip install -e panda-train-track
+```
+
+to install PANDA-Train-Track using the [pip package installer](https://pip.pypa.io/en/stable/index.html).
 
 ## Objective
 
