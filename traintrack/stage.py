@@ -9,7 +9,7 @@ from typing import Dict
 
 from traintrack.utils.io import read_yaml_file, check_required_keys
 
-from pytorch_lightning.loggers   import WandbLogger, TensorBoardLogger
+from pytorch_lightning.loggers   import WandbLogger, TensorBoardLogger, CSVLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.trainer   import Trainer
 
@@ -199,6 +199,12 @@ class stage:
             elif self.model_config["logger"] == "tb":
                 logging.info("Using the TensorBoard logger")
                 logger = TensorBoardLogger(
+                    name     = self.pipeline_config["project"],
+                    save_dir = self.model_config["artifact_library"],
+                    version  = self.model_config["resume_id"],
+                )
+            elif self.model_config["logger"] == None or self.model_config["logger"] == "None":
+                logger = CSVLogger(
                     name     = self.pipeline_config["project"],
                     save_dir = self.model_config["artifact_library"],
                     version  = self.model_config["resume_id"],
