@@ -16,9 +16,9 @@ def main():
     parser = argparse.ArgumentParser(description="Utility to access and configure different parts of the machine learning pipeline.")
 
     parser.add_argument("pipeline_config_file", type=str, help="Path to the .yaml file containing the pipeline configuration.")
-    
     parser.add_argument("-i", "--inference", action="store_true", help="Run the pipeline stages in inference mode.")
     parser.add_argument("-v", "--verbose"  , action="count"     , help="Increases the verbosity: -v = INFO, -vv = DEBUG.", default=0)
+    parser.add_argument("-n", "--max_epochs", type=int, help="Maximum number of epochs for training. Uses the amount given in the config file if not specified here.", default=-1)
 
     command_line_args = parser.parse_args()
 
@@ -43,7 +43,7 @@ def main():
 
     # Run the pipeline stages.
     for stage_config in stage_list:
-        stage(stage_config, pipeline_config, command_line_args.inference).run()
+        stage(stage_config, pipeline_config, command_line_args.inference, command_line_args.max_epochs).run()
 
 # Run the main function if the script is executed.
 if __name__ == "__main__":

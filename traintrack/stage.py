@@ -18,13 +18,14 @@ class stage:
        It is responsible for configuring and running a specified machine learning, or data processing model using .yaml configuration files.
     """
     
-    def __init__(self, stage_config : Dict, pipeline_config : Dict, inference_mode : bool):
+    def __init__(self, stage_config : Dict, pipeline_config : Dict, inference_mode : bool, max_epochs : int = -1) -> None:
         """Initializes the stage class with the specified configurations and checks if all required options are set.
 
         Args:
             stage_config (dict): Dictionary containing the stage configuration.
             pipeline_config (dict): Dictionary containing the pipeline configuration.
             inference_mode (bool): Flag to indicate if the stage is running in inference mode.
+            max_epochs (int, optional): Maximum number of epochs for training. Defaults to -1.
         """
         
         logging.info("Initializing stage")
@@ -40,6 +41,7 @@ class stage:
         self.pipeline_config = pipeline_config
         self.stage_config    = stage_config
         self.inference_mode  = inference_mode
+        self.max_epochs      = max_epochs
         
         # Initialize other class attributes
         self.model_config       = None
@@ -114,7 +116,7 @@ class stage:
         return getattr(module, model_class_name)
 
 
-    def __prepare_stage(self):
+    def __prepare_stage(self) -> None:
         """This function imports the class specified in the stage configuration and initializes the model with the specified model configuration from the configuration yaml file.
            In the case of a machine learning model, it also initializes the PyTorch Lightning Trainer and Logger.
         """
@@ -140,7 +142,7 @@ class stage:
             logging.error("Model must contain either a \"training_step\" or a \"prepare_data\" method")
             sys.exit(1)
 
-    def __init_ml(self, model_class : object):
+    def __init_ml(self, model_class : object) -> None:
         """Function to initialize a machine learning model, logger, and trainer with the specified configuration.
 
         Args:
@@ -173,6 +175,10 @@ class stage:
             model_config_path = os.path.join(self.pipeline_config["model_library"], self.stage_config["set"], "configs", self.stage_config["config"])
             self.model_config = read_yaml_file(model_config_path)
             self.model_config["resume_id"] = None
+
+        # Set the maximum number of epochs for training to the value specified in the command line arguments if given
+        if self.max_epochs != -1:
+            self.model_config["max_epochs"] = self.max_epochs
 
         # Check if all required keys are present in the model configuration
         check_required_keys(dict          = self.model_config,
