@@ -160,13 +160,25 @@ class stage:
         # Check if a resume id is given in the stage configuration.
         if "resume_id" in self.stage_config.keys():
             # Set the path to the checkpoint file
-            checkpoint_path = os.path.join(self.pipeline_config["artifact_library"], self.pipeline_config["project"], self.stage_config["resume_id"], "checkpoints", "last.ckpt")
+            if "checkpoint_name" not in self.stage_config.keys():
+                logging.info("No checkpoint name specified, using last.ckpt")
+                checkpoint_path = os.path.join(self.pipeline_config["artifact_library"], self.pipeline_config["project"], self.stage_config["resume_id"], "checkpoints", "last.ckpt")
+            else:
+                checkpoint_path = os.path.join(self.pipeline_config["artifact_library"], self.pipeline_config["project"], self.stage_config["resume_id"], "checkpoints", self.stage_config["checkpoint_name"])
             try:
                 with open(checkpoint_path, "r"):
                     logging.info(f"Resuming training from checkpoint {checkpoint_path}")
-                    checkpoint = torch.load(checkpoint_path, map_location=torch.device("cpu"))
-                    self.model_config = checkpoint["hyper_parameters"]
-                    self.model_config["checkpoint_path"] = checkpoint_path
+                    if not self.stage_config["overwrite_config"]:
+                        logging.info("Overwriting model configuration with checkpoint configuration")
+                        checkpoint = torch.load(checkpoint_path, map_location=torch.device("cpu"))
+                        self.model_config = checkpoint["hyper_parameters"]
+                        self.model_config["checkpoint_path"] = checkpoint_path
+                    else:
+                        # Read the model configuration from the specified configuration file
+                        model_config_path = os.path.join(self.pipeline_config["model_library"], self.stage_config["set"], "configs", self.stage_config["config"])
+                        self.model_config = read_yaml_file(model_config_path)
+                        self.model_config["resume_id"] = self.stage_config["resume_id"]
+                        self.model_config["checkpoint_path"] = checkpoint_path
             except FileNotFoundError:
                 logging.error(f"Checkpoint file not found: {checkpoint_path}")
                 sys.exit(1)
@@ -194,7 +206,7 @@ class stage:
         self.model = model_class(self.model_config)
 
         # Initialize the PyTorch Logger as specified in the model configuration
-        if "logger" in  self.model_config.keys():
+        if "logger" in  self.model_config.keys() and not self.inference_mode:
             if self.model_config["logger"] == "wandb":
                 logging.info("Using the Weights and Biases logger")
                 logger = WandbLogger(
@@ -220,6 +232,7 @@ class stage:
                 sys.exit(1)
         else:
             logging.info("Running without a logger")
+            logger = None
 
         # Configure how/when PyTorch should save the model checkpoints
         logging.info("Configuring model checkpoint callback")
