@@ -8,8 +8,8 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 dependencies = [
-    "pyyaml>=5.1",
-    "pytorch-lightning",
+#    "pyyaml>=5.1",
+ #   "pytorch-lightning==1.9.5",
 ]
 
 setup(
